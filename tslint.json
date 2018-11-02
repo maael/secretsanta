@@ -1,0 +1,16 @@
+{
+  "extends": ["tslint:latest", "tslint-react"],
+  "rules": {
+    // override tslint-react rules here
+    "jsx-wrap-multiline": false,
+    "jsx-boolean-value": false,
+    "no-submodule-imports": false,
+    "one-variable-per-declaration": false,
+    "jsx-no-multiline-js": false,
+    "interface-name": false,
+    "arrow-parens": false,
+    "semicolon": [true, "always", "strict-bound-class-methods"],
+    "no-console": [true, "log"],
+    "jsx-curly-spacing": false
+  }
+}

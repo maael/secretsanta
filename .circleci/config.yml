@@ -1,0 +1,117 @@
+version: 2
+
+refs:
+  container: &container
+    docker:
+      - image: circleci/node:8.11
+    working_directory: ~/repo
+  steps:
+    - &Versions
+      run:
+        name: Versions
+        command: node -v && npm -v && yarn -v
+    - &Install
+      run:
+        name: Install Dependencies
+        command: yarn install
+    - &Build
+      run:
+        name: Build
+        command: yarn build
+    - &Lint
+      run:
+        name: Lint
+        command: yarn lint
+    - &Test
+      run:
+        name: Test
+        command: yarn test
+    - &Test_with_coverage
+      run:
+        name: "Test with coverage"
+        command: yarn test --coverage
+    - &Restore_node_modules
+      restore_cache:
+        keys:
+          - v1-dependencies-{{ checksum "yarn.lock" }}
+          - v1-dependencies-
+    - &Save_node_modules
+      save_cache:
+        paths:
+          - node_modules
+        key: v1-dependencies-{{ checksum "yarn.lock" }}
+    - &Deploy_staging
+      run:
+        name: Deploy over SSH to staging
+        command: |
+          ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST 'cd /var/www/secretsanta/staging && git pull && yarn && yarn build && pm2 restart secretsanta-staging'
+    - &Deploy_production
+      run:
+        name: Deploy over SSH to production
+        command: |
+          ssh -o "StrictHostKeyChecking no" $SSH_USER@$SSH_HOST 'cd /var/www/secretsanta/production && git pull && yarn && yarn build && pm2 restart secretsanta-production'
+
+jobs:
+  all:
+    <<: *container
+    steps:
+      - checkout
+      - *Restore_node_modules
+      - *Versions
+      - *Install
+      - *Save_node_modules
+      - *Test_with_coverage
+      - *Lint
+
+  master:
+    <<: *container
+    steps:
+      - checkout
+      - *Restore_node_modules
+      - *Versions
+      - *Install
+      - *Save_node_modules
+      - *Test_with_coverage
+      - *Lint
+      - *Deploy_staging
+
+  deploy-to-prod:
+    <<: *container
+    steps:
+      - checkout
+      - *Restore_node_modules
+      - *Versions
+      - *Install
+      - *Save_node_modules
+      - *Test
+      - *Deploy_production
+
+workflows:
+  version: 2
+  all:
+    jobs:
+      - all:
+          filters:
+            branches:
+              ignore:
+                - master
+
+  master:
+    jobs:
+      - master:
+          filters:
+            branches:
+              only: master
+      - deploy-to-prod-approval:
+          type: approval
+          requires:
+            - master
+          filters:
+            branches:
+              only: master
+      - deploy-to-prod:
+          requires:
+            - deploy-to-prod-approval
+          filters:
+            branches:
+              only: master
