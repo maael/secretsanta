@@ -35,7 +35,6 @@ class Page extends React.Component<Props> {
   }
 
   public render() {
-    console.info(this.props.secret, this.state);
     const { elf, secret } = this.props;
     if (secret.fulfilled) {
       return (

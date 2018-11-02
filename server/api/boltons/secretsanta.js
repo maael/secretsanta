@@ -31,7 +31,6 @@ module.exports = io => {
     }
     const length = m.elfs.push(req.body);
     const result = await m.save();
-    console.info("emitting to", secretsanta);
     io.sockets.in(secretsanta).emit("update", result);
     res.send(result.elfs[length - 1]);
   });

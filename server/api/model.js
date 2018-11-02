@@ -17,7 +17,6 @@ function createModelApi(Model, io, boltOnRouter) {
   });
 
   router.post("/", async (req, res) => {
-    console.log("posting", req.body);
     const m = new Model(req.body);
     const result = await m.save();
     res.send(result);

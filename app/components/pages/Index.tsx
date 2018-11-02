@@ -25,7 +25,6 @@ export default connect((props: Props) => ({
       body: JSON.stringify(data),
       method: "POST",
       then: ({ _id }: SecretSanta) => {
-        console.info("created", _id);
         props.router.push(`/secret/${_id}`);
       },
       url: "/api/secretsanta",

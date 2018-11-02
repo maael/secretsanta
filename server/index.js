@@ -2,15 +2,14 @@ require("dotenv-extended").load();
 const qs = require("querystring");
 const next = require("next");
 const express = require("express");
-const api = require("./api");
+const pino = require("express-pino-logger")();
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
+const api = require("./api");
 
 io.on("connection", socket => {
-  console.info("connected!");
   socket.on("room", room => {
-    console.info("joining room", room);
     socket.join(room);
   });
 });
@@ -35,6 +34,7 @@ nextApp
   .then(
     () =>
       new Promise((resolve, reject) => {
+        app.use(pino);
         app.use("/api", api(io));
 
         const handler = nextApp.getRequestHandler();
