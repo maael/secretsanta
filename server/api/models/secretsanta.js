@@ -11,6 +11,7 @@ const randomChristmasName = () => {
     "Blitzen",
     "Cupid",
     "Donner",
+    "Gary",
   ];
   return names[Math.floor(Math.random() * names.length)];
 };
