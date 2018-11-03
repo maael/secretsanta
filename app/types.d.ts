@@ -45,4 +45,5 @@ export interface PromiseState<T> {
   value: T;
   reason: Error | null;
   meta: any;
+  then: Promise;
 }

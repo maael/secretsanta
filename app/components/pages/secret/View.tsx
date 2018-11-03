@@ -4,6 +4,7 @@ import { RouterProps } from "next/router";
 import React from "react";
 import connect from "../../../lib/connect";
 import { Elf, PromiseState, SecretSanta } from "../../../types";
+import EditElf from "../../molecules/EditElf";
 
 interface Props {
   secret: PromiseState<SecretSanta>;
@@ -41,17 +42,21 @@ class Page extends React.Component<Props> {
         <Paper>
           <Typography variant="h2">{secret.value.name}</Typography>
           {secret.value.elfs.map(({ _id, name }) => (
-            <Typography
-              key={_id}
-              variant={
-                elf && elf.fulfilled && elf.value._id === _id
-                  ? "body1"
-                  : "body2"
-              }
-            >
-              {name}{" "}
-              {elf && elf.fulfilled && elf.value._id === _id ? "(You)" : ""}
-            </Typography>
+            <React.Fragment key={_id}>
+              <Typography
+                variant={
+                  elf && elf.fulfilled && elf.value._id === _id
+                    ? "body1"
+                    : "body2"
+                }
+              >
+                {name}{" "}
+                {elf && elf.fulfilled && elf.value._id === _id ? "(You)" : ""}
+              </Typography>
+              {elf && elf.fulfilled && elf.value._id === _id ? (
+                <EditElf secretsanta={secret.value._id} elf={elf.value} />
+              ) : null}
+            </React.Fragment>
           ))}
         </Paper>
       );

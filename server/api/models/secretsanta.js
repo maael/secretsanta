@@ -1,7 +1,17 @@
 const mongoose = require("mongoose");
 
 const randomChristmasName = () => {
-  const names = ["Prancer", "Dancer", "Dasher", "Vixen", "Rudolph", "Comet"];
+  const names = [
+    "Prancer",
+    "Dancer",
+    "Dasher",
+    "Vixen",
+    "Rudolph",
+    "Comet",
+    "Blitzen",
+    "Cupid",
+    "Donner",
+  ];
   return names[Math.floor(Math.random() * names.length)];
 };
 
