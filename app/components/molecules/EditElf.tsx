@@ -4,34 +4,29 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Input from "@material-ui/core/Input";
-import withMobileDialog from "@material-ui/core/withMobileDialog";
 import React, { ChangeEvent } from "react";
 import connect from "../../lib/connect";
-import { Elf, PromiseState } from "../../types";
+import { Elf } from "../../types";
 
 interface Props {
   fullScreen?: boolean;
   elf: Elf;
   secretsanta: string;
   putElf: (d: Partial<Elf>) => void;
-  resetElf: () => void;
 }
 
 interface State {
   open: boolean;
   elf: Elf;
+  oldElf: Elf;
 }
 
 class ResponsiveDialog extends React.Component<Props, State> {
   public state = {
     elf: this.props.elf,
+    oldElf: this.props.elf,
     open: false,
   };
-
-  // public componentWillReceiveProps() {
-  //   console.info("updating", this.props);
-  //   this.setState({ elf: this.props.elf });
-  // }
 
   public render() {
     const { fullScreen } = this.props;
@@ -91,7 +86,7 @@ class ResponsiveDialog extends React.Component<Props, State> {
   }
 
   public handleClose = () => {
-    this.setState({ open: false, elf: this.props.elf });
+    this.setState({ open: false, elf: this.state.oldElf });
   };
 
   private handleElfChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
@@ -104,24 +99,22 @@ class ResponsiveDialog extends React.Component<Props, State> {
 
   private handleSave = () => {
     this.props.putElf(this.state.elf);
-    console.info("putting elf");
   };
 }
 
 export default connect(
   (props: Props) => ({
     putElf: (data: Partial<Elf>) => ({
-      newElf: {
+      elf: {
         body: JSON.stringify(data),
         method: "PUT",
-        then: (_: any, meta: { component: ResponsiveDialog }) => {
+        then: (elf: Elf, meta: { component: ResponsiveDialog }) => {
           meta.component.handleClose();
+          meta.component.setState({ elf, oldElf: elf });
         },
         url: `/api/secretsanta/${props.secretsanta}/elf/${props.elf._id}`,
       },
     }),
-    // TODO: Figure out way to get wrapped component
-    // }), { withRef: true })(withMobileDialog()(ResponsiveDialog as any) as any);
   }),
   { withRef: true },
 )(ResponsiveDialog);
