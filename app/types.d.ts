@@ -8,6 +8,7 @@ interface ModelBase {
 export interface Elf {
   _id: string;
   name: string;
+  display: string;
   email: string;
   address: string;
   hints?: string;

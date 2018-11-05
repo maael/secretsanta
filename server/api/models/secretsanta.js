@@ -16,8 +16,13 @@ const randomChristmasName = () => {
   return names[Math.floor(Math.random() * names.length)];
 };
 
+const randomDisplayPicture = () => {
+  return Math.floor(Math.random() * 8) + 1;
+};
+
 const ElfSchema = {
   name: { type: "string", default: randomChristmasName },
+  display: { type: "string", default: randomDisplayPicture },
   email: { type: "string" },
   address: { type: "string", default: "The North Pole" },
   hints: { type: "string" },

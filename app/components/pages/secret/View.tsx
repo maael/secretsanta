@@ -39,10 +39,10 @@ class Page extends React.Component<Props> {
     const { elf, secret } = this.props;
     if (secret.fulfilled) {
       return (
-        <Paper>
+        <Paper style={{ padding: 10, margin: 10 }}>
           <Typography variant="h2">{secret.value.name}</Typography>
-          {secret.value.elfs.map(({ _id, name }) => (
-            <React.Fragment key={_id}>
+          {secret.value.elfs.map(({ _id, name, display }) => (
+            <div key={_id} style={{ display: "inline-block" }}>
               <Typography
                 variant={
                   elf && elf.fulfilled && elf.value._id === _id
@@ -53,10 +53,11 @@ class Page extends React.Component<Props> {
                 {name}{" "}
                 {elf && elf.fulfilled && elf.value._id === _id ? "(You)" : ""}
               </Typography>
+              <img src={`/static/imgs/displays/${display}.png`} height={100} />
               {elf && elf.fulfilled && elf.value._id === _id ? (
                 <EditElf secretsanta={secret.value._id} elf={elf.value} />
               ) : null}
-            </React.Fragment>
+            </div>
           ))}
         </Paper>
       );
