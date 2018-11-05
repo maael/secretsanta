@@ -4,6 +4,8 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Link from "next/link";
 import React, { ReactChild } from "react";
+import NoSSR from "react-no-ssr";
+const SnowStorm = require("react-snowstorm");
 
 const styles = createStyles({
   item: {
@@ -29,6 +31,9 @@ const Outline: React.SFC<{ children: ReactChild; classes: any }> = ({
         </Link>
       </Toolbar>
     </AppBar>
+    <NoSSR>
+      <SnowStorm />
+    </NoSSR>
     <div>{children}</div>
   </div>
 );
