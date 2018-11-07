@@ -4,7 +4,7 @@ import Input from "@material-ui/core/Input";
 import Paper from "@material-ui/core/Paper";
 import { createStyles, Theme, withStyles } from "@material-ui/core/styles";
 import React, { ChangeEvent, FormEvent, MouseEvent } from "react";
-import { SecretSanta } from "../../types";
+import { SecretSanta } from "../../../types";
 
 export interface State {
   name: string;

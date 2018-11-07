@@ -1,3 +1,5 @@
+import { string, any } from "prop-types";
+
 interface ModelBase {
   _id: string;
   createdBy: string;
@@ -47,4 +49,20 @@ export interface PromiseState<T> {
   reason: Error | null;
   meta: any;
   then: Promise;
+}
+
+export type CurrentUrl = string;
+export type IsAuthenticated = boolean;
+export interface LoggedUser {
+  nickname: string;
+  name: string;
+  picture: string;
+  email: string;
+  sub: string;
+}
+
+export interface WithAuth {
+  currentUrl: CurrentUrl;
+  isAuthenticated: IsAuthenticated;
+  loggedUser?: LoggedUser;
 }

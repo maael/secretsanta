@@ -4,6 +4,39 @@ const Model = require("../models/secretsanta");
 module.exports = io => {
   const router = new Router();
 
+  router.get("/elf/:elf/addresses", async (req, res) => {
+    const { elf } = req.params;
+    const variations = await collectElfVariations(elf, "address");
+    res.send(variations);
+  });
+
+  router.get("/elf/:elf/hints", async (req, res) => {
+    const { elf } = req.params;
+    const variations = await collectElfVariations(elf, "hints");
+    res.send(variations);
+  });
+
+  async function collectElfVariations(elf, field) {
+    const elfVariations = await Model.find(
+      { "elfs.user": elf },
+      { _id: 0, [`elfs.${field}`]: 1 },
+    );
+    const flattenedVariations = elfVariations.map(({ elfs }) => elfs[0][field]);
+    return [...new Set(flattenedVariations)].filter(i => i);
+  }
+
+  router.get("/elf/:elf", async (req, res) => {
+    const { elf } = req.params;
+    const elfSecrets = await Model.find({ "elfs.user": elf });
+    res.send(elfSecrets);
+  });
+
+  router.get("/santa/:elf", async (req, res) => {
+    const { elf } = req.params;
+    const elfSecrets = await Model.find({ createdBy: elf });
+    res.send(elfSecrets);
+  });
+
   router.get("/:secretsanta/elf/:elf", async (req, res) => {
     const { elf, secretsanta } = req.params;
     const m = await Model.findById(secretsanta);
@@ -29,7 +62,8 @@ module.exports = io => {
         .status(400)
         .send({ err: "No such secret santa exists", secretsanta });
     }
-    const length = m.elfs.push(req.body);
+    console.log("pushing", { ...req.body, user: req.locals.user });
+    const length = m.elfs.push({ ...req.body, user: req.locals.user });
     const result = await m.save();
     io.sockets.in(secretsanta).emit("update");
     res.send(result.elfs[length - 1]);
@@ -42,16 +76,12 @@ module.exports = io => {
       { $set: {} },
     );
     delete operation.$set["elfs.$._id"];
-    console.log("OPERATION", operation, secretsanta, elf);
     await Model.updateOne({ _id: secretsanta, "elfs._id": elf }, operation);
-    console.log("DONE");
     const elfs = await Model.findOne(
       { _id: secretsanta, "elfs._id": elf },
       { _id: 0, elfs: { $elemMatch: { _id: elf } } },
     );
-    console.log("ELFS");
     const result = elfs.elfs && elfs.elfs.length > 0 ? elfs.elfs[0] : undefined;
-    console.log("RESULTS");
     if (result) {
       io.sockets.in(secretsanta).emit("update");
       res.send(result);

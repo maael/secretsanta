@@ -2,8 +2,8 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import { RouterProps } from "next/router";
 import React from "react";
+import { Elf, PromiseState, SecretSanta } from "../../../../types";
 import connect from "../../../lib/connect";
-import { Elf, PromiseState, SecretSanta } from "../../../types";
 import EditElf from "../../molecules/EditElf";
 
 interface Props {

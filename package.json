@@ -21,6 +21,7 @@
   "dependencies": {
     "@material-ui/core": "^3.2.2",
     "@material-ui/icons": "^3.0.1",
+    "auth0-lock": "^11.11.0",
     "babel-loader": "^8.0.4",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
@@ -28,7 +29,9 @@
     "express": "^4.16.3",
     "express-pino-logger": "^4.0.0",
     "isomorphic-fetch": "^2.2.1",
+    "js-cookie": "^2.2.0",
     "jss": "^9.8.7",
+    "jwt-decode": "^2.2.0",
     "mongoose": "^5.3.3",
     "next": "^7.0.1",
     "pino": "^5.8.0",
@@ -39,7 +42,8 @@
     "react-refetch": "^2.0.0",
     "react-snowstorm": "^0.0.2",
     "socket.io": "^2.1.1",
-    "styled-jsx": "^3.1.0"
+    "styled-jsx": "^3.1.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -49,11 +53,14 @@
     "@storybook/addons": "3",
     "@storybook/react": "^4.0.0-alpha.3",
     "@types/isomorphic-fetch": "^0.0.34",
+    "@types/js-cookie": "^2.2.0",
+    "@types/jwt-decode": "^2.2.1",
     "@types/next": "^7.0.0",
     "@types/react": "^16.4.14",
     "@types/react-jss": "^8.6.0",
     "@types/react-no-ssr": "^1.1.1",
     "@types/styled-jsx": "^2.2.7",
+    "@types/uuid": "^3.4.4",
     "@zeit/next-typescript": "^1.1.1",
     "awesome-typescript-loader": "^5.2.1",
     "fork-ts-checker-webpack-plugin": "^0.4.10",

@@ -26,6 +26,7 @@ const ElfSchema = {
   email: { type: "string" },
   address: { type: "string", default: "The North Pole" },
   hints: { type: "string" },
+  user: { type: "string", required: true },
 };
 
 const ExclusionSchema = {
@@ -56,6 +57,8 @@ const SecretSantaSchema = new mongoose.Schema(
       type: Date,
       default: new Date(`${new Date().getFullYear()}-12-01 12:00`),
     },
+    createdBy: { type: "string", required: true },
+    updatedBy: { type: "string", required: true },
   },
   {
     timestamps: true,

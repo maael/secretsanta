@@ -5,8 +5,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Input from "@material-ui/core/Input";
 import React, { ChangeEvent } from "react";
+import { Elf } from "../../../types";
 import connect from "../../lib/connect";
-import { Elf } from "../../types";
 
 interface Props {
   fullScreen?: boolean;
