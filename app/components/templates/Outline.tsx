@@ -1,5 +1,5 @@
 import AppBar from "@material-ui/core/AppBar";
-import { createStyles, withStyles } from "@material-ui/core/styles";
+import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Link from "next/link";
@@ -17,7 +17,7 @@ const styles = createStyles({
   },
 });
 
-const Outline: React.SFC<{ children: ReactChild; classes: any }> = ({
+const Outline: React.SFC<{ children: ReactChild } & WithStyles> = ({
   children,
   classes,
 }) => (

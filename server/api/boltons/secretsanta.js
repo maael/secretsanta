@@ -1,8 +1,25 @@
+const { readdir } = require("fs");
+const { join } = require("path");
 const { Router } = require("express");
 const Model = require("../models/secretsanta");
 
 module.exports = io => {
   const router = new Router();
+
+  router.get("/elf/displays", async (_, res) => {
+    const staticUrl = join("static", "imgs", "displays");
+    readdir(join(__dirname, "..", "..", "..", staticUrl), (err, files) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      res.send(
+        files.map(f => ({
+          url: `/${staticUrl}/${f}`,
+          key: f.split(".")[0],
+        })),
+      );
+    });
+  });
 
   router.get("/elf/:elf/addresses", async (req, res) => {
     const { elf } = req.params;
@@ -62,7 +79,6 @@ module.exports = io => {
         .status(400)
         .send({ err: "No such secret santa exists", secretsanta });
     }
-    console.log("pushing", { ...req.body, user: req.locals.user });
     const length = m.elfs.push({ ...req.body, user: req.locals.user });
     const result = await m.save();
     io.sockets.in(secretsanta).emit("update");

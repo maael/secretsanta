@@ -2,6 +2,7 @@ import { RouterProps } from "next/router";
 import React from "react";
 import { LoggedUser, SecretSanta } from "../../../types";
 import connect from "../../lib/connect";
+import SecretSantaFormContainer from "../atoms/SecretSantaFormContainer";
 import SecretSantaForm, {
   State as SantaState,
 } from "../organisms/SecretSantaForm";
@@ -19,11 +20,15 @@ const Page: React.SFC<Props> = ({ post, loggedUser }) => {
   }
 
   return (
-    <React.Fragment>
+    <SecretSantaFormContainer>
       <SecretSantaForm onSubmit={onSubmit} />
-      <SecretSantaList type="created" loggedUser={loggedUser} />
-      <SecretSantaList type="participating" loggedUser={loggedUser} />
-    </React.Fragment>
+      {loggedUser && loggedUser.sub ? (
+        <React.Fragment>
+          <SecretSantaList type="created" loggedUser={loggedUser} />
+          <SecretSantaList type="participating" loggedUser={loggedUser} />
+        </React.Fragment>
+      ) : null}
+    </SecretSantaFormContainer>
   );
 };
 

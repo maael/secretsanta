@@ -9,7 +9,6 @@ import {
 export default (Page: any) =>
   class DefaultPage extends React.Component {
     public static getInitialProps(ctx: any) {
-      console.info("process", process, (process as any).browser);
       const loggedUser = (process as any).browser
         ? getUserFromLocalStorage()
         : getUserFromCookie(ctx.req);
@@ -36,7 +35,6 @@ export default (Page: any) =>
     }
 
     public render() {
-      console.info("render");
       return (
         <div>
           <Head>

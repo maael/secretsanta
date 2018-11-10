@@ -54,7 +54,7 @@ export const unsetToken = () => {
 };
 
 export const getUserFromCookie = (req: any) => {
-  if (!req.headers.cookie) {
+  if (!req || !req.headers || !req.headers.cookie) {
     return undefined;
   }
   const jwtCookie = req.headers.cookie

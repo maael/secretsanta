@@ -1,8 +1,10 @@
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
+import Link from "next/link";
 import React from "react";
 import { LoggedUser, PromiseState, SecretSanta } from "../../../types";
 import connect from "../../lib/connect";
+import { formatDate } from "../../lib/utils";
 
 interface Props {
   secrets: PromiseState<SecretSanta[]>;
@@ -20,20 +22,28 @@ class Page extends React.Component<Props> {
             {type === "created" ? "Created" : "Participating"}
           </Typography>
           {secrets.value.map(secret => (
-            <a key={secret._id} href={`/secret/${secret._id}`}>
+            <Link key={secret._id} href={`/secret/${secret._id}`}>
               <Paper style={{ padding: 10, margin: 10 }}>
-                <Typography variant="h6">{secret.name}</Typography>
-                <Typography variant="subtitle1">
-                  {secret.elfs.map(({ name }) => name).join(",")}
+                <Typography style={{ display: "inline-block" }} variant="h6">
+                  {secret.name}
+                </Typography>
+                <Typography
+                  style={{ display: "inline-block", padding: "0 10px" }}
+                  variant="subtitle1"
+                >
+                  Closing: {formatDate(secret.deadlineDate)}
+                </Typography>
+                <Typography
+                  style={{ display: "inline-block", padding: "0 10px" }}
+                  variant="subtitle1"
+                >
+                  Revealing: {formatDate(secret.revealDate)}
                 </Typography>
                 <Typography variant="subtitle1">
-                  Closing: {secret.deadlineDate}
-                </Typography>
-                <Typography variant="subtitle1">
-                  Revealing: {secret.revealDate}
+                  {secret.elfs.map(({ name }) => name).join(", ")}
                 </Typography>
               </Paper>
-            </a>
+            </Link>
           ))}
         </React.Fragment>
       );

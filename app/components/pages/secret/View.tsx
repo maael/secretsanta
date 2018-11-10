@@ -1,10 +1,20 @@
+import Avatar from "@material-ui/core/Avatar";
+import Chip from "@material-ui/core/Chip";
 import Paper from "@material-ui/core/Paper";
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import CalendarIcon from "@material-ui/icons/CalendarToday";
 import { RouterProps } from "next/router";
 import React from "react";
-import { Elf, PromiseState, SecretSanta } from "../../../../types";
+import { Elf, LoggedUser, PromiseState, SecretSanta } from "../../../../types";
 import connect from "../../../lib/connect";
 import EditElf from "../../molecules/EditElf";
+import SecretSantaEdit from "../../organisms/SecretSantaEdit";
 
 interface Props {
   secret: PromiseState<SecretSanta>;
@@ -13,9 +23,26 @@ interface Props {
   getElf: (id: string) => PromiseState<Elf>;
   getSecret: () => PromiseState<SecretSanta>;
   router: RouterProps;
+  loggedUser: LoggedUser;
 }
 
-class Page extends React.Component<Props> {
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return `${`0${d.getDate()}`.slice(-2)}/${`0${d.getMonth() + 1}`.slice(
+    -2,
+  )}/${d.getFullYear()}`;
+};
+
+const styles = createStyles((theme: Theme) => ({
+  chip: {
+    marginLeft: theme.spacing.unit,
+  },
+  elf: {
+    float: "left",
+  },
+}));
+
+class Page extends React.Component<Props & WithStyles> {
   public componentDidMount() {
     const { router } = this.props;
     const id = router && router.query && router.query.id;
@@ -36,30 +63,53 @@ class Page extends React.Component<Props> {
   }
 
   public render() {
-    const { elf, secret } = this.props;
+    const { classes, secret /*, loggedUser*/ } = this.props;
+    const isOwner = true; // loggedUser && secret.value && (loggedUser.sub === secret.value.createdBy);
     if (secret.fulfilled) {
       return (
-        <Paper style={{ padding: 10, margin: 10 }}>
-          <Typography variant="h2">{secret.value.name}</Typography>
-          {secret.value.elfs.map(({ _id, name, display }) => (
-            <div key={_id} style={{ display: "inline-block" }}>
-              <Typography
-                variant={
-                  elf && elf.fulfilled && elf.value._id === _id
-                    ? "body1"
-                    : "body2"
-                }
-              >
-                {name}{" "}
-                {elf && elf.fulfilled && elf.value._id === _id ? "(You)" : ""}
+        <React.Fragment>
+          <Paper style={{ padding: 10, margin: 10 }}>
+            <div>
+              <Typography variant="h2">
+                {secret.value.name}
+                <Chip
+                  avatar={<Avatar>£</Avatar>}
+                  label={secret.value.budget}
+                  color="secondary"
+                  className={classes.chip}
+                />
+                <Chip
+                  avatar={
+                    <Avatar>
+                      <CalendarIcon />
+                    </Avatar>
+                  }
+                  label={formatDate(secret.value.deadlineDate)}
+                  color="secondary"
+                  className={classes.chip}
+                />
+                <Chip
+                  avatar={
+                    <Avatar>
+                      <CalendarIcon />
+                    </Avatar>
+                  }
+                  label={formatDate(secret.value.revealDate)}
+                  color="secondary"
+                  className={classes.chip}
+                />
+                {isOwner ? (
+                  <SecretSantaEdit secretSanta={secret.value} />
+                ) : null}
               </Typography>
-              <img src={`/static/imgs/displays/${display}.png`} height={100} />
-              {elf && elf.fulfilled && elf.value._id === _id ? (
-                <EditElf secretsanta={secret.value._id} elf={elf.value} />
-              ) : null}
             </div>
-          ))}
-        </Paper>
+            {secret.value.elfs.map(currentElf => (
+              <div key={currentElf._id} style={{ display: "inline-block" }}>
+                {this.renderElf(currentElf)}
+              </div>
+            ))}
+          </Paper>
+        </React.Fragment>
       );
     } else if (secret.pending) {
       return <div>Loading</div>;
@@ -67,6 +117,37 @@ class Page extends React.Component<Props> {
       return <div>Error</div>;
     }
   }
+
+  private renderElf = (currentElf: Elf) => {
+    const { classes, elf, secret } = this.props;
+    const editable = elf && elf.fulfilled && elf.value._id === currentElf._id;
+    return (
+      <div className={classes.elf}>
+        <Typography
+          variant={
+            elf && elf.fulfilled && elf.value._id === currentElf._id
+              ? "subtitle1"
+              : "subtitle2"
+          }
+        >
+          {name} {editable ? `${currentElf.name} (You)` : currentElf.name}
+        </Typography>
+        {editable ? (
+          <EditElf secretsanta={secret.value._id} elf={elf && elf.value}>
+            <img
+              src={`/static/imgs/displays/${currentElf.display}.png`}
+              height={100}
+            />
+          </EditElf>
+        ) : (
+          <img
+            src={`/static/imgs/displays/${currentElf.display}.png`}
+            height={100}
+          />
+        )}
+      </div>
+    );
+  };
 }
 
 export default connect((props: Props) => ({
@@ -103,4 +184,4 @@ export default connect((props: Props) => ({
   secret: `/api/secretsanta/${props.router &&
     props.router.query &&
     props.router.query.id}`,
-}))(Page);
+}))(withStyles(styles)(Page));

@@ -41,6 +41,7 @@ function createModelApi(Model, io, opts = {}) {
       const m = await Model.findById(id);
       m.set({ ...req.body, updatedBy: req.locals.user });
       const result = await m.save();
+      io.sockets.in(id).emit("update");
       res.send(result);
     });
   }

@@ -1,11 +1,13 @@
+import Badge from "@material-ui/core/Badge";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import Input from "@material-ui/core/Input";
+import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
+import SettingsIcon from "@material-ui/icons/Build";
 import React, { ChangeEvent } from "react";
-import { Elf } from "../../../types";
+import { Elf, PromiseState } from "../../../types";
 import connect from "../../lib/connect";
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
   elf: Elf;
   secretsanta: string;
   putElf: (d: Partial<Elf>) => void;
+  displays: PromiseState<Array<{ key: string; url: string }>>;
 }
 
 interface State {
@@ -21,7 +24,17 @@ interface State {
   oldElf: Elf;
 }
 
-class ResponsiveDialog extends React.Component<Props, State> {
+const styles = createStyles({
+  badge: {
+    bottom: 5,
+    height: 0,
+    right: 5,
+    top: "auto",
+    width: 0,
+  },
+});
+
+class ResponsiveDialog extends React.Component<Props & WithStyles, State> {
   public state = {
     elf: this.props.elf,
     oldElf: this.props.elf,
@@ -29,18 +42,27 @@ class ResponsiveDialog extends React.Component<Props, State> {
   };
 
   public render() {
-    const { fullScreen } = this.props;
+    const { children, classes, fullScreen } = this.props;
     const { elf } = this.state;
+    const displayArea = this.renderDisplayArea();
     return (
       <div>
-        <Button onClick={this.handleClickOpen}>Edit</Button>
+        <Badge
+          badgeContent={<SettingsIcon />}
+          color="secondary"
+          classes={{ badge: classes.badge }}
+          onClick={this.handleClickOpen}
+        >
+          {children}
+        </Badge>
         <Dialog
           fullScreen={fullScreen}
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="responsive-dialog-title"
         >
-          <DialogTitle id="responsive-dialog-title">
+          <DialogContent>
+            {displayArea}
             <Input
               placeholder="Name..."
               value={elf.name}
@@ -48,8 +70,6 @@ class ResponsiveDialog extends React.Component<Props, State> {
               name="name"
               fullWidth
             />
-          </DialogTitle>
-          <DialogContent>
             <Input
               placeholder="Email..."
               value={elf.email}
@@ -89,6 +109,41 @@ class ResponsiveDialog extends React.Component<Props, State> {
     this.setState({ open: false, elf: this.state.oldElf });
   };
 
+  private renderDisplayArea = () => {
+    const { displays } = this.props;
+    const { elf } = this.state;
+    const youStyle = { borderBottom: "1px dotted red", marginRight: 30 };
+    if (displays.fulfilled) {
+      return (
+        <div>
+          <img
+            height={100}
+            src={`/static/imgs/displays/${elf.display}.png`}
+            style={youStyle}
+          />
+          {displays.value
+            .filter(({ key }) => key !== elf.display)
+            .map(({ url, key }) => (
+              <img
+                height={100}
+                key={key}
+                src={url}
+                onClick={this.handleDisplayChange(key)}
+              />
+            ))}
+        </div>
+      );
+    } else if (displays.pending) {
+      return null;
+    } else {
+      return <div>Error</div>;
+    }
+  };
+
+  private handleDisplayChange = (display: string) => () => {
+    this.setState({ elf: { ...this.state.elf, display } });
+  };
+
   private handleElfChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     this.setState({ elf: { ...this.state.elf, [target.name]: target.value } });
   };
@@ -102,19 +157,22 @@ class ResponsiveDialog extends React.Component<Props, State> {
   };
 }
 
-export default connect(
-  (props: Props) => ({
-    putElf: (data: Partial<Elf>) => ({
-      elf: {
-        body: JSON.stringify(data),
-        method: "PUT",
-        then: (elf: Elf, meta: { component: ResponsiveDialog }) => {
-          meta.component.handleClose();
-          meta.component.setState({ elf, oldElf: elf });
+export default (withStyles(styles)(
+  connect(
+    (props: Props) => ({
+      displays: `/api/secretsanta/elf/displays`,
+      putElf: (data: Partial<Elf>) => ({
+        elf: {
+          body: JSON.stringify(data),
+          method: "PUT",
+          then: (elf: Elf, meta: { component: ResponsiveDialog }) => {
+            meta.component.handleClose();
+            meta.component.setState({ elf, oldElf: elf });
+          },
+          url: `/api/secretsanta/${props.secretsanta}/elf/${props.elf._id}`,
         },
-        url: `/api/secretsanta/${props.secretsanta}/elf/${props.elf._id}`,
-      },
+      }),
     }),
-  }),
-  { withRef: true },
-)(ResponsiveDialog);
+    { withRef: true },
+  )(ResponsiveDialog),
+) as unknown) as React.ComponentType<Partial<Props>>;

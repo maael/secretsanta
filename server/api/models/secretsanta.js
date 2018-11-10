@@ -48,7 +48,7 @@ const SecretSantaSchema = new mongoose.Schema(
     elfs: [ElfSchema],
     exclusions: [ExclusionSchema],
     pairings: [PairSchema],
-    budget: { type: "number", default: 10 },
+    budget: { type: "string", default: "10" },
     revealDate: {
       type: Date,
       default: new Date(`${new Date().getFullYear()}-12-25 19:00`),

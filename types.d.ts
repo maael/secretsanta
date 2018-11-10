@@ -34,9 +34,9 @@ export interface SecretSanta extends ModelBase {
   elfs: Elf[];
   exclusions: Exclusion[];
   pairings: Pair[];
-  budget: number;
-  revealDate: Date;
-  deadlineDate: Date;
+  budget: string;
+  revealDate: string;
+  deadlineDate: string;
 }
 
 export interface PromiseState<T> {
