@@ -36,7 +36,10 @@ class MyApp extends App<AppProps & DefaultAppIProps> {
             sheetsManager={this.pageContext.sheetsManager}
           >
             <CssBaseline />
-            <StateContainer>
+            <StateContainer
+              loggedUser={pageProps.loggedUser}
+              isAuthenticated={pageProps.isAuthenticated}
+            >
               <Outline>
                 <Component pageContext={this.pageContext} {...pageProps} />
               </Outline>

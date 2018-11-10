@@ -5,11 +5,13 @@ import Typography from "@material-ui/core/Typography";
 import Link from "next/link";
 import React, { ReactChild } from "react";
 import NoSSR from "react-no-ssr";
+import AuthHeader from "../atoms/AuthHeader";
 const SnowStorm = require("react-snowstorm");
 
 const styles = createStyles({
   item: {
     cursor: "pointer",
+    flexGrow: 1,
     marginRight: 15,
   },
   root: {
@@ -29,6 +31,7 @@ const Outline: React.SFC<{ children: ReactChild } & WithStyles> = ({
             Secret Santa in Space
           </Typography>
         </Link>
+        <AuthHeader />
       </Toolbar>
     </AppBar>
     <NoSSR>

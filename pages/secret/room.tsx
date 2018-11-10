@@ -1,6 +1,7 @@
 import { RouterProps, withRouter } from "next/router";
 import React from "react";
 import defaultPage from "../../app/components/hocs/defaultPage";
+import requireAuth from "../../app/components/hocs/requireAuth";
 import View from "../../app/components/pages/secret/View";
 import { WithAuth } from "../../types";
 
@@ -18,4 +19,4 @@ const RoomPage = ({
   );
 };
 
-export default defaultPage(withRouter(RoomPage));
+export default defaultPage(withRouter(requireAuth(RoomPage)));

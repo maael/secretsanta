@@ -31,7 +31,6 @@ export const setToken = (token: string) => {
   window.localStorage.setItem("token", token);
   try {
     const jwt = jwtDecode(token);
-    console.info("jwt", jwt);
     window.localStorage.setItem("user", JSON.stringify(jwt));
   } catch (e) {
     console.error("Error getting user from token", token, e);
@@ -39,6 +38,7 @@ export const setToken = (token: string) => {
     return;
   }
   Cookie.set("jwt", token);
+  window.location.href = "/";
 };
 
 export const unsetToken = () => {

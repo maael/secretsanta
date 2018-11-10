@@ -7,23 +7,25 @@ import Document, {
 } from "next/document";
 import React from "react";
 import flush from "styled-jsx/server";
-// import {
-//   getUserFromCookie,
-//   getUserFromLocalStorage,
-// } from "../utils/auth";
+import { getUserFromCookie, getUserFromLocalStorage } from "../utils/auth";
 
 class MyDocument extends Document<DefaultDocumentIProps & DocumentProps> {
   public static getInitialProps(ctx: any) {
     let pageContext;
     const page = ctx.renderPage((Component: any) => {
-      console.info("BROWSER", (process as any).browser);
-      // const loggedUser = (process as any).browser
-      //   ? getUserFromLocalStorage()
-      //   : getUserFromCookie(ctx.req);
-      // console.info("LGOGED", loggedUser);
+      const loggedUser = (process as any).browser
+        ? getUserFromLocalStorage()
+        : getUserFromCookie(ctx.req);
       const WrappedComponent = (props: any) => {
         pageContext = props.pageContext;
-        return <Component {...props} />;
+        return (
+          <Component
+            currentUrl={ctx.pathname}
+            loggedUser={loggedUser}
+            isAuthenticated={!!loggedUser}
+            {...props}
+          />
+        );
       };
 
       return WrappedComponent;
