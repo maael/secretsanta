@@ -48,7 +48,7 @@ class SecretSantaForm extends React.Component<Props> {
   };
 
   public render() {
-    const { classes } = this.props;
+    const { classes, secretSanta } = this.props;
     const { name, budget, revealDate, deadlineDate } = this.state;
     return (
       <form onSubmit={this.onSubmit}>
@@ -60,6 +60,7 @@ class SecretSantaForm extends React.Component<Props> {
             onChange={this.handleChange}
             name="name"
             fullWidth
+            InputLabelProps={{ shrink: true }}
           />
           <TextField
             id="budget"
@@ -69,16 +70,15 @@ class SecretSantaForm extends React.Component<Props> {
             onChange={this.handleChange}
             name="budget"
             fullWidth
+            InputLabelProps={{ shrink: true }}
           />
           <TextField
             id="deadline"
-            label="Deadline Date"
+            label="Draw Date"
             type="date"
             value={formatDateTimeToDate(deadlineDate)}
             fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
+            InputLabelProps={{ shrink: true }}
             name="deadlineDate"
             onChange={this.handleChange}
           />
@@ -88,9 +88,7 @@ class SecretSantaForm extends React.Component<Props> {
             type="date"
             value={formatDateTimeToDate(revealDate)}
             fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
+            InputLabelProps={{ shrink: true }}
             name="revealDate"
             onChange={this.handleChange}
           />
@@ -103,7 +101,7 @@ class SecretSantaForm extends React.Component<Props> {
           onClick={this.onSubmit}
           color="secondary"
         >
-          Submit
+          {secretSanta && secretSanta._id ? "Save" : "Create"} Secret Santa
         </Button>
       </form>
     );

@@ -73,7 +73,7 @@ jobs:
       - *Save_node_modules
       - *Test_with_coverage
       - *Lint
-      - *Deploy_staging
+      # - *Deploy_staging
 
   deploy-to-prod:
     <<: *container

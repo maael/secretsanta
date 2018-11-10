@@ -1,3 +1,4 @@
+import Typography from "@material-ui/core/Typography";
 import { RouterProps } from "next/router";
 import React from "react";
 import { LoggedUser, SecretSanta } from "../../../types";
@@ -21,6 +22,7 @@ const Page: React.SFC<Props> = ({ post, loggedUser }) => {
 
   return (
     <SecretSantaFormContainer>
+      <Typography variant="h6">Create Secret Santa</Typography>
       <SecretSantaForm onSubmit={onSubmit} />
       {loggedUser && loggedUser.sub ? (
         <React.Fragment>
