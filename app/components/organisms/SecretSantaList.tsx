@@ -19,7 +19,9 @@ class Page extends React.Component<Props> {
       return (
         <React.Fragment>
           <Typography variant="h6">
-            {type === "created" ? "Created" : "Participating"}
+            {type === "created"
+              ? "Created Secret Santas"
+              : "Participating Secret Santas"}
           </Typography>
           {secrets.value.map(secret => (
             <Link key={secret._id} href={`/secret/${secret._id}`}>

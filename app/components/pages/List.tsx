@@ -22,7 +22,7 @@ const Page: React.SFC<Props> = ({ post, loggedUser }) => {
 
   return (
     <SecretSantaFormContainer>
-      <Typography variant="h6">Create Secret Santa</Typography>
+      <Typography variant="h6">Create a new Secret Santa</Typography>
       <SecretSantaForm onSubmit={onSubmit} />
       {loggedUser && loggedUser.sub ? (
         <React.Fragment>

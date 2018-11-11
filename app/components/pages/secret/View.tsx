@@ -63,8 +63,9 @@ class Page extends React.Component<Props & WithStyles> {
   }
 
   public render() {
-    const { classes, secret /*, loggedUser*/ } = this.props;
-    const isOwner = true; // loggedUser && secret.value && (loggedUser.sub === secret.value.createdBy);
+    const { classes, secret, loggedUser } = this.props;
+    const isOwner =
+      loggedUser && secret.value && loggedUser.sub === secret.value.createdBy;
     if (secret.fulfilled) {
       return (
         <React.Fragment>
