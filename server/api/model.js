@@ -3,8 +3,10 @@ const { Router } = require("express");
 function createModelApi(Model, io, opts = {}) {
   const router = new Router();
   const options = {
+    agenda: undefined,
     bolton: undefined,
     enabledMethods: ["GET", "POST", "PUT", "DELETE"],
+    hooks: {},
     ...opts,
   };
 
@@ -31,6 +33,9 @@ function createModelApi(Model, io, opts = {}) {
         updatedBy: req.locals.user,
       });
       const result = await m.save();
+      if (options.hooks["POST"]) {
+        await options.hooks["POST"](result, options.agenda);
+      }
       res.send(result);
     });
   }
@@ -41,6 +46,9 @@ function createModelApi(Model, io, opts = {}) {
       const m = await Model.findById(id);
       m.set({ ...req.body, updatedBy: req.locals.user });
       const result = await m.save();
+      if (options.hooks["PUT"]) {
+        await options.hooks["PUT"](result, options.agenda);
+      }
       io.sockets.in(id).emit("update");
       res.send(result);
     });

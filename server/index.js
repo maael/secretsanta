@@ -33,9 +33,9 @@ nextApp
   .prepare()
   .then(
     () =>
-      new Promise((resolve, reject) => {
+      new Promise(async (resolve, reject) => {
         app.use(pino);
-        app.use("/api", api(io));
+        app.use("/api", await api(io));
 
         const handler = nextApp.getRequestHandler();
 

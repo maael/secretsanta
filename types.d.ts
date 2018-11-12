@@ -22,10 +22,7 @@ export interface Exclusion {
 }
 
 export interface Pair {
-  elfOne: string;
-  elfOneNote: string;
-  elfTwo: string;
-  elfTwonote: string;
+  [e1: string]: string;
 }
 
 export interface SecretSanta extends ModelBase {

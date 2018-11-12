@@ -44,7 +44,7 @@ const styles = createStyles((theme: Theme) => ({
 
 class Page extends React.Component<Props & WithStyles> {
   public componentDidMount() {
-    const { router } = this.props;
+    const { router, loggedUser } = this.props;
     const id = router && router.query && router.query.id;
     const socket = (window as any).io();
     socket.on("connect", () => {
@@ -54,7 +54,9 @@ class Page extends React.Component<Props & WithStyles> {
       if (existingElf) {
         this.props.getElf(existingElf);
       } else {
-        this.props.postElf({});
+        this.props.postElf({
+          email: loggedUser.email,
+        });
       }
     });
     socket.on("update", () => {
@@ -66,6 +68,7 @@ class Page extends React.Component<Props & WithStyles> {
     const { classes, secret, loggedUser } = this.props;
     const isOwner =
       loggedUser && secret.value && loggedUser.sub === secret.value.createdBy;
+    const canEdit = isOwner && new Date(secret.value.deadlineDate) > new Date();
     if (secret.fulfilled) {
       return (
         <React.Fragment>
@@ -99,7 +102,7 @@ class Page extends React.Component<Props & WithStyles> {
                   color="secondary"
                   className={classes.chip}
                 />
-                {isOwner ? (
+                {canEdit ? (
                   <SecretSantaEdit secretSanta={secret.value} />
                 ) : null}
               </Typography>
@@ -131,7 +134,7 @@ class Page extends React.Component<Props & WithStyles> {
               : "subtitle2"
           }
         >
-          {name} {editable ? `${currentElf.name} (You)` : currentElf.name}
+          {editable ? `${currentElf.name} (You)` : currentElf.name}
         </Typography>
         {editable ? (
           <EditElf secretsanta={secret.value._id} elf={elf && elf.value}>
@@ -151,7 +154,7 @@ class Page extends React.Component<Props & WithStyles> {
   };
 }
 
-export default connect((props: Props) => ({
+export default connect((props: Props, context: any) => ({
   getElf: (id: string) => ({
     elf: {
       url: `/api/secretsanta/${props.router &&
