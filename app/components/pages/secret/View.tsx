@@ -15,6 +15,7 @@ import { Elf, LoggedUser, PromiseState, SecretSanta } from "../../../../types";
 import connect from "../../../lib/connect";
 import EditElf from "../../molecules/EditElf";
 import SecretSantaEdit from "../../organisms/SecretSantaEdit";
+import SecretSantaMatches from "../../organisms/SecretSantaMatches";
 
 interface Props {
   secret: PromiseState<SecretSanta>;
@@ -24,6 +25,12 @@ interface Props {
   getSecret: () => PromiseState<SecretSanta>;
   router: RouterProps;
   loggedUser: LoggedUser;
+}
+
+interface State {
+  editable?: boolean;
+  joinable?: boolean;
+  loaded: boolean;
 }
 
 const formatDate = (dateStr: string) => {
@@ -40,79 +47,132 @@ const styles = createStyles((theme: Theme) => ({
   elf: {
     float: "left",
   },
+  link: {
+    color: "inherit",
+    textDecoration: "none",
+  },
+  paper: {
+    margin: 10,
+    padding: 10,
+  },
+  topInfo: {
+    margin: 10,
+    padding: 10,
+    textAlign: "center",
+  },
 }));
 
-class Page extends React.Component<Props & WithStyles> {
-  public componentDidMount() {
-    const { router, loggedUser } = this.props;
+class Page extends React.Component<Props & WithStyles, State> {
+  public state = {
+    editable: undefined,
+    joinable: undefined,
+    loaded: false,
+  };
+
+  public componentDidUpdate() {
+    const { router, loggedUser, secret } = this.props;
     const id = router && router.query && router.query.id;
-    const socket = (window as any).io();
-    socket.on("connect", () => {
-      socket.emit("room", id);
-      const key = `${id}-elf`;
-      const existingElf = localStorage.getItem(key);
-      if (existingElf) {
-        this.props.getElf(existingElf);
-      } else {
-        this.props.postElf({
-          email: loggedUser.email,
-        });
-      }
-    });
-    socket.on("update", () => {
-      this.props.getSecret();
-    });
+    const { loaded } = this.state;
+    if (!loaded && secret.value) {
+      const joinable =
+        secret.value && new Date(secret.value.deadlineDate) > new Date();
+      const editable =
+        secret.value && new Date(secret.value.revealDate) > new Date();
+      const socket = (window as any).io();
+      socket.on("connect", () => {
+        socket.emit("room", id);
+        const key = `${id}-elf`;
+        const existingElf = localStorage.getItem(key);
+        if (existingElf) {
+          this.props.getElf(existingElf);
+        } else {
+          if (this.state.joinable) {
+            this.props.postElf({
+              email: loggedUser.email,
+            });
+          }
+        }
+      });
+      socket.on("update", () => {
+        this.props.getSecret();
+      });
+      this.setState({ joinable, editable, loaded: true });
+    }
   }
 
   public render() {
     const { classes, secret, loggedUser } = this.props;
+    const { editable, joinable } = this.state;
     const isOwner =
       loggedUser && secret.value && loggedUser.sub === secret.value.createdBy;
-    const canEdit = isOwner && new Date(secret.value.deadlineDate) > new Date();
+    const canEdit = isOwner && joinable;
     if (secret.fulfilled) {
+      const link = `http://secretsanta.space/secret/${secret.value._id}`;
       return (
         <React.Fragment>
-          <Paper style={{ padding: 10, margin: 10 }}>
-            <div>
-              <Typography variant="h2">
-                {secret.value.name}
-                <Chip
-                  avatar={<Avatar>£</Avatar>}
-                  label={secret.value.budget}
-                  color="secondary"
-                  className={classes.chip}
-                />
-                <Chip
-                  avatar={
-                    <Avatar>
-                      <CalendarIcon />
-                    </Avatar>
-                  }
-                  label={formatDate(secret.value.deadlineDate)}
-                  color="secondary"
-                  className={classes.chip}
-                />
-                <Chip
-                  avatar={
-                    <Avatar>
-                      <CalendarIcon />
-                    </Avatar>
-                  }
-                  label={formatDate(secret.value.revealDate)}
-                  color="secondary"
-                  className={classes.chip}
-                />
-                {canEdit ? (
-                  <SecretSantaEdit secretSanta={secret.value} />
-                ) : null}
-              </Typography>
-            </div>
-            {secret.value.elfs.map(currentElf => (
-              <div key={currentElf._id} style={{ display: "inline-block" }}>
-                {this.renderElf(currentElf)}
+          {joinable ? (
+            <Paper className={classes.topInfo}>
+              Share the link{" "}
+              <small>
+                <a className={classes.link} href={link}>
+                  {link}
+                </a>
+              </small>{" "}
+              to let your friends join!
+            </Paper>
+          ) : editable ? (
+            <Paper className={classes.paper}>
+              This secret santa has now closed! Come back after the reveal date
+              to see the list!
+            </Paper>
+          ) : null}
+          {editable ? (
+            <Paper className={classes.paper}>
+              <div>
+                <Typography variant="h2">
+                  {secret.value.name}
+                  <Chip
+                    avatar={<Avatar>£</Avatar>}
+                    label={secret.value.budget}
+                    color="secondary"
+                    className={classes.chip}
+                  />
+                  <Chip
+                    avatar={
+                      <Avatar>
+                        <CalendarIcon />
+                      </Avatar>
+                    }
+                    label={formatDate(secret.value.deadlineDate)}
+                    color="secondary"
+                    className={classes.chip}
+                  />
+                  <Chip
+                    avatar={
+                      <Avatar>
+                        <CalendarIcon />
+                      </Avatar>
+                    }
+                    label={formatDate(secret.value.revealDate)}
+                    color="secondary"
+                    className={classes.chip}
+                  />
+                  {canEdit ? (
+                    <SecretSantaEdit secretSanta={secret.value} />
+                  ) : null}
+                </Typography>
               </div>
-            ))}
-          </Paper>
+              {secret.value.elfs.map(currentElf => (
+                <div key={currentElf._id} style={{ display: "inline-block" }}>
+                  {this.renderElf(currentElf)}
+                </div>
+              ))}
+            </Paper>
+          ) : (
+            <Paper className={classes.paper}>
+              <SecretSantaMatches secret={secret.value} />
+            </Paper>
+          )}
         </React.Fragment>
       );
     } else if (secret.pending) {
@@ -124,7 +184,8 @@ class Page extends React.Component<Props & WithStyles> {
 
   private renderElf = (currentElf: Elf) => {
     const { classes, elf, secret } = this.props;
-    const editable = elf && elf.fulfilled && elf.value._id === currentElf._id;
+    const { editable } = this.state;
+    const isCurrent = elf && elf.fulfilled && elf.value._id === currentElf._id;
     return (
       <div className={classes.elf}>
         <Typography
@@ -134,9 +195,9 @@ class Page extends React.Component<Props & WithStyles> {
               : "subtitle2"
           }
         >
-          {editable ? `${currentElf.name} (You)` : currentElf.name}
+          {isCurrent ? `${currentElf.name} (You)` : currentElf.name}
         </Typography>
-        {editable ? (
+        {isCurrent && editable ? (
           <EditElf secretsanta={secret.value._id} elf={elf && elf.value}>
             <img
               src={`/static/imgs/displays/${currentElf.display}.png`}
@@ -154,7 +215,7 @@ class Page extends React.Component<Props & WithStyles> {
   };
 }
 
-export default connect((props: Props, context: any) => ({
+export default connect((props: Props) => ({
   getElf: (id: string) => ({
     elf: {
       url: `/api/secretsanta/${props.router &&
