@@ -9,7 +9,20 @@ const IndexPage = ({
   isAuthenticated,
 }: { router: RouterProps } & WithAuth) => {
   if (isAuthenticated) {
-    router.push("/list");
+    if ((process as any).browser) {
+      const redirect = window.localStorage.getItem("secretsanta-redirect");
+      window.localStorage.removeItem("secretsanta-redirect");
+      if (redirect) {
+        router.push(redirect);
+        return null;
+      } else {
+        router.push("/list");
+        return null;
+      }
+    } else {
+      router.push("/list");
+      return null;
+    }
   }
   return <Index />;
 };

@@ -9,6 +9,12 @@ export default (Page: any) =>
         if (loggedUser) {
           return <Page {...props} />;
         } else {
+          if ((process as any).browser) {
+            window.localStorage.setItem(
+              "secretsanta-redirect",
+              props.router.asPath,
+            );
+          }
           props.router.push("/auth/sign-in");
         }
       }}
