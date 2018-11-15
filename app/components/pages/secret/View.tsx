@@ -1,4 +1,5 @@
 import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
 import Chip from "@material-ui/core/Chip";
 import Paper from "@material-ui/core/Paper";
 import {
@@ -123,7 +124,14 @@ class Page extends React.Component<Props & WithStyles, State> {
           ) : editable ? (
             <Paper className={classes.paper}>
               This secret santa has now closed! Come back after the reveal date
-              to see the list!
+              to see the list! Need to rematch people?{" "}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.rematch}
+              >
+                Rematch
+              </Button>
             </Paper>
           ) : null}
           {editable ? (
@@ -181,6 +189,17 @@ class Page extends React.Component<Props & WithStyles, State> {
       return <div>Error</div>;
     }
   }
+
+  private rematch = async () => {
+    const { secret } = this.props;
+    const id = secret.value._id;
+    const res = await fetch(`/api/secretsanta/${id}/rematch`);
+    if (res.ok) {
+      alert("Rematched!");
+    } else {
+      alert("Problem rematching, please retry later!");
+    }
+  };
 
   private renderElf = (currentElf: Elf) => {
     const { classes, elf, secret } = this.props;

@@ -1,7 +1,7 @@
 const FIELD = "user";
 
 function match(rawInput) {
-  if (rawInput.length < 2) return undefined;
+  if (rawInput.length < 2) return { matches: [], data: [] };
   const input = [].concat(rawInput);
   const matches = [].concat(input).reduce((ar, e, i, a) => {
     const filtered = input.filter(inp => inp[FIELD] !== e[FIELD]);

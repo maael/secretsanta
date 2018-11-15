@@ -34,20 +34,13 @@ const ExclusionSchema = {
   elfTwo: { type: mongoose.ObjectId },
 };
 
-const PairSchema = {
-  elfOne: { type: mongoose.ObjectId },
-  elfOneNote: { type: mongoose.ObjectId },
-  elfTwo: { type: mongoose.ObjectId },
-  elfTwonote: { type: mongoose.ObjectId },
-};
-
 const SecretSantaSchema = new mongoose.Schema(
   {
     name: { type: "string", required: true },
     santaId: { type: "string", default: () => new mongoose.Types.ObjectId() },
     elfs: [ElfSchema],
     exclusions: [ExclusionSchema],
-    pairings: [PairSchema],
+    pairings: [mongoose.Schema.Types.Mixed],
     budget: { type: "string", default: "10" },
     revealDate: {
       type: Date,

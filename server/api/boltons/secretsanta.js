@@ -2,6 +2,7 @@ const { readdir } = require("fs");
 const { join } = require("path");
 const { Router } = require("express");
 const Model = require("../models/secretsanta");
+const { match: matchJob } = require("../lib/agendaJobs");
 
 module.exports = io => {
   const router = new Router();
@@ -104,6 +105,13 @@ module.exports = io => {
     } else {
       res.status(400).send({ err: "No elf found", secretsanta, elf });
     }
+  });
+
+  router.get("/:secretsanta/rematch", async (req, res) => {
+    const { secretsanta } = req.params;
+    matchJob({ attrs: { data: { secret: secretsanta } } }, () => {
+      res.send({ ok: 1 });
+    });
   });
 
   return router;

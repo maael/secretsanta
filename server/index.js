@@ -2,7 +2,7 @@ require("dotenv-extended").load();
 const qs = require("querystring");
 const next = require("next");
 const express = require("express");
-const pino = require("express-pino-logger")();
+const createPino = require("express-pino-logger");
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
@@ -15,6 +15,11 @@ io.on("connection", socket => {
 });
 
 const DEV = process.env.NODE_ENV === "development";
+
+const pino = createPino({
+  name: "secretsanta",
+  level: DEV ? "error" : "info",
+});
 
 const nextApp = next({
   dir: ".",
