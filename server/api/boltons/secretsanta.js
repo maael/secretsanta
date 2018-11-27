@@ -3,6 +3,8 @@ const { join } = require("path");
 const { Router } = require("express");
 const Model = require("../models/secretsanta");
 const { match: matchJob } = require("../lib/agendaJobs");
+const { getMatches } = require("../lib/match");
+const mail = require("../lib/mail");
 
 module.exports = io => {
   const router = new Router();
@@ -112,6 +114,34 @@ module.exports = io => {
     matchJob({ attrs: { data: { secret: secretsanta } } }, () => {
       res.send({ ok: 1 });
     });
+  });
+
+  router.put("/:secretsanta/elf/:elf/delivery", async (req, res) => {
+    const { elf, secretsanta } = req.params;
+    const secretSanta = await Model.findById(secretsanta);
+    const { deliveryNote, sentDelivery } = secretSanta.elfs.find(
+      ({ _id }) => elf === _id.toString(),
+    );
+    if (sentDelivery) {
+      res.status(400).send({ err: "Delivered already" });
+    } else if (!secretSanta.pairings || secretSanta.pairings.length === 0) {
+      res.status(400).send({ err: "No pairings yet" });
+    } else {
+      const matchData = getMatches(secretSanta.elfs, secretSanta.pairings);
+      const { to } = matchData.find(({ from }) => elf === from._id.toString());
+      mail(
+        to.email,
+        `Secret Santa (${secretSanta.name}) Delivery Update!`,
+        "delivery",
+        { to, secretSanta, from: { deliveryNote } },
+      );
+      await Model.updateOne(
+        { _id: secretsanta, "elfs._id": elf },
+        { $set: { "elfs.$.sentDelivery": true } },
+      );
+      io.sockets.in(secretsanta).emit("update");
+      res.send({ deliveryNote, ok: true });
+    }
   });
 
   return router;

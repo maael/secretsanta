@@ -9,6 +9,7 @@ import SettingsIcon from "@material-ui/icons/Build";
 import React, { ChangeEvent } from "react";
 import { Elf, PromiseState } from "../../../types";
 import connect from "../../lib/connect";
+import Confirmation from "./Confirmation";
 
 interface Props {
   fullScreen?: boolean;
@@ -16,6 +17,8 @@ interface Props {
   secretsanta: string;
   putElf: (d: Partial<Elf>) => void;
   displays: PromiseState<Array<{ key: string; url: string }>>;
+  delivering: boolean;
+  deliver: (d: Partial<Elf>, close: () => void) => void;
 }
 
 interface State {
@@ -42,7 +45,7 @@ class ResponsiveDialog extends React.Component<Props & WithStyles, State> {
   };
 
   public render() {
-    const { children, classes, fullScreen } = this.props;
+    const { children, classes, fullScreen, delivering } = this.props;
     const { elf } = this.state;
     const displayArea = this.renderDisplayArea();
     return (
@@ -91,6 +94,15 @@ class ResponsiveDialog extends React.Component<Props & WithStyles, State> {
               name="hints"
               fullWidth
             />
+            {delivering ? (
+              <Input
+                placeholder="Delivery Note..."
+                value={elf.deliveryNote}
+                onChange={this.handleElfChange}
+                name="deliveryNote"
+                fullWidth
+              />
+            ) : null}
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
@@ -99,6 +111,17 @@ class ResponsiveDialog extends React.Component<Props & WithStyles, State> {
             <Button onClick={this.handleSave} color="primary" autoFocus>
               Save
             </Button>
+            {delivering ? (
+              <Confirmation
+                text="You can only send your secret santa delivery information once. Are you sure?"
+                onConfirm={this.onConfirm}
+                disabled={elf.sentDelivery}
+              >
+                <Button color="primary" autoFocus disabled={elf.sentDelivery}>
+                  Deliver
+                </Button>
+              </Confirmation>
+            ) : null}
           </DialogActions>
         </Dialog>
       </div>
@@ -155,11 +178,33 @@ class ResponsiveDialog extends React.Component<Props & WithStyles, State> {
   private handleSave = () => {
     this.props.putElf(this.state.elf);
   };
+
+  private onConfirm = (close: () => void) => {
+    this.props.deliver(this.state.elf, close);
+  };
 }
 
 export default (withStyles(styles)(
   connect(
     (props: Props) => ({
+      deliver: (data: Partial<Elf>, close: () => void) => ({
+        elf: {
+          body: JSON.stringify(data),
+          method: "PUT",
+          then: () => ({
+            method: "PUT",
+            then: (elf: Elf, meta: { component: ResponsiveDialog }) => {
+              close();
+              meta.component.handleClose();
+              meta.component.setState({ elf, oldElf: elf });
+            },
+            url: `/api/secretsanta/${props.secretsanta}/elf/${
+              props.elf._id
+            }/delivery`,
+          }),
+          url: `/api/secretsanta/${props.secretsanta}/elf/${props.elf._id}`,
+        },
+      }),
       displays: `/api/secretsanta/elf/displays`,
       putElf: (data: Partial<Elf>) => ({
         elf: {

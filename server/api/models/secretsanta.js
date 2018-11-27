@@ -27,6 +27,8 @@ const ElfSchema = {
   address: { type: "string", default: "The North Pole" },
   hints: { type: "string" },
   user: { type: "string", required: true },
+  sentDelivery: { type: "boolean", default: false },
+  deliveryNote: { type: "string" },
 };
 
 const ExclusionSchema = {

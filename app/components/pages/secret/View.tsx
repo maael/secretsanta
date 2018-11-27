@@ -203,7 +203,7 @@ class Page extends React.Component<Props & WithStyles, State> {
 
   private renderElf = (currentElf: Elf) => {
     const { classes, elf, secret } = this.props;
-    const { editable } = this.state;
+    const { editable, joinable } = this.state;
     const isCurrent = elf && elf.fulfilled && elf.value._id === currentElf._id;
     return (
       <div className={classes.elf}>
@@ -217,7 +217,11 @@ class Page extends React.Component<Props & WithStyles, State> {
           {isCurrent ? `${currentElf.name} (You)` : currentElf.name}
         </Typography>
         {isCurrent && editable ? (
-          <EditElf secretsanta={secret.value._id} elf={elf && elf.value}>
+          <EditElf
+            secretsanta={secret.value._id}
+            elf={elf && elf.value}
+            delivering={!joinable && editable}
+          >
             <img
               src={`/static/imgs/displays/${currentElf.display}.png`}
               height={100}

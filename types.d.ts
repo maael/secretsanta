@@ -14,6 +14,8 @@ export interface Elf {
   email: string;
   address: string;
   hints?: string;
+  deliveryNote?: string;
+  sentDelivery?: boolean;
 }
 
 export interface Exclusion {

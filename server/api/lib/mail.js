@@ -4,6 +4,7 @@ const mailgunTransport = require("nodemailer-mailgun-transport");
 const templates = {
   match: require("./templates/match"),
   reveal: require("./templates/reveal"),
+  delivery: require("./templates/delivery"),
 };
 
 const { MAILGUN_ACTIVE_API_KEY, MAILGUN_DOMAIN } = process.env;
