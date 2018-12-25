@@ -1,3 +1,6 @@
+require("dotenv-extended").load();
+const mongoose = require("mongoose");
+mongoose.connect(process.env.MONGO_URI);
 const { reveal } = require("../server/api/lib/agendaJobs");
 
 console.info("Loaded reveal", reveal && typeof reveal === "function");
