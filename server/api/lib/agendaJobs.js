@@ -37,7 +37,7 @@ async function revealJob(job, done) {
       console.log("emailing reveal", from.name, from.email);
       return send(
         from.email,
-        `Secret Santa (${secretSanta.name}) Reveal! Get ready to gift!`,
+        `Secret Santa (${secretSanta.name}) Reveal!`,
         "reveal",
         { to, secretSanta, from, matches: matchData },
       );
